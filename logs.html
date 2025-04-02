@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Sugar and Insulin Tracker - Logs</title>
+    <style>
+        :root {
+            --primary-color: #2E7D32;  /* Medical green */
+            --secondary-color: #1976D2;  /* Medical blue */
+            --accent-color: #FF4081;  /* Medical pink */
+            --background-color: #F5F5F5;  /* Light gray */
+            --surface-color: #FFFFFF;  /* White */
+            --text-primary: #212121;  /* Dark gray */
+            --text-secondary: #757575;  /* Medium gray */
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--surface-color);
+            padding: 20px;
+            width: 300px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        h1, h2 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .reading-card {
+            background-color: #E8F5E9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .reading-card h3 {
+            color: var(--primary-color);
+            margin: 0 0 10px 0;
+            font-size: 18px;
+        }
+
+        .reading-card p {
+            margin: 5px 0;
+            color: var(--text-primary);
+        }
+
+        .reading-card .notes {
+            color: var(--text-secondary);
+            font-style: italic;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .flash-message {
+            background-color: #E8F5E9;
+            color: var(--primary-color);
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            text-align: center;
+            width: 300px;
+            font-weight: 500;
+        }
+
+        /* App Icon */
+        .app-icon {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            background-color: var(--primary-color);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-icon img {
+            width: 50px;
+            height: 50px;
+        }
+
+        /* Footer Navigation */
+        .footer-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: var(--surface-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .footer-nav .nav-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .footer-nav img {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 5px;
+        }
+
+        .footer-nav .nav-button:hover {
+            color: var(--primary-color);
+        }
+
+        .nav-button.active {
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-icon">
+        <img src="{{ url_for('static', filename='app_icon.png') }}" alt="Blood Sugar Tracker Icon">
+    </div>
+    <h1>Blood Sugar and Insulin Tracker</h1>
+    <h2>Reading Logs</h2>
+    
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="flash-message">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="container">
+        {% for reading in readings %}
+        <div class="reading-card">
+            <h3>{{ reading.timestamp.strftime('%Y-%m-%d %H:%M') }}</h3>
+            <p><strong>Blood Sugar:</strong> {{ reading.blood_sugar }} mg/dL</p>
+            <p><strong>Insulin:</strong> {{ reading.insulin }} units</p>
+            {% if reading.notes %}
+            <p class="notes">{{ reading.notes }}</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Footer Navigation Bar -->
+    <div class="footer-nav">
+        <a href="{{ url_for('home') }}" class="nav-button">
+            <img src="{{ url_for('static', filename='home.png') }}" alt="Home Icon">Home
+        </a>
+        <a href="{{ url_for('logs') }}" class="nav-button active">
+            <img src="{{ url_for('static', filename='logs.png') }}" alt="Logs Icon">Logs
+        </a>
+        <a href="{{ url_for('profile') }}" class="nav-button">
+            <img src="{{ url_for('static', filename='user.png') }}" alt="User Icon">User
+        </a>
+        <a href="{{ url_for('settings') }}" class="nav-button">
+            <img src="{{ url_for('static', filename='settings.png') }}" alt="Settings Icon">Settings
+        </a>
+    </div>
+</body>
+</html> 

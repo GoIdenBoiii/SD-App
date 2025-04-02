@@ -1,0 +1,340 @@
+/'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Sugar and Insulin Tracker - Settings</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2E7D32;  /* Medical green */
+            --secondary-color: #1976D2;  /* Medical blue */
+            --accent-color: #FF4081;  /* Medical pink */
+            --background-color: #F5F5F5;  /* Light gray */
+            --surface-color: #FFFFFF;  /* White */
+            --text-primary: #212121;  /* Dark gray */
+            --text-secondary: #757575;  /* Medium gray */
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--surface-color);
+            padding: 20px;
+            width: 300px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        h1, h2 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .notification {
+            background-color: #E8F5E9;
+            color: var(--primary-color);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            text-align: left;
+            transition: background-color 0.3s ease;
+        }
+
+        .button img {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+        }
+
+        .button:hover {
+            background-color: #1B5E20;
+        }
+
+        .button.delete {
+            background-color: var(--accent-color);
+        }
+
+        .button.delete:hover {
+            background-color: #C2185B;
+        }
+
+        /* Toggle Switch */
+        .toggle-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 12px;
+            background-color: #E8F5E9;
+            border-radius: 8px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Footer Navigation */
+        .footer-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: var(--surface-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .footer-nav .nav-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .footer-nav img {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 5px;
+        }
+
+        .footer-nav .nav-button:hover {
+            color: var(--primary-color);
+        }
+
+        .nav-button.active {
+            color: var(--primary-color);
+        }
+
+        .flash-message {
+            background-color: #E8F5E9;
+            color: var(--primary-color);
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            text-align: center;
+            width: 300px;
+            font-weight: 500;
+        }
+
+        /* App Icon */
+        .app-icon {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            background-color: var(--primary-color);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-icon img {
+            width: 50px;
+            height: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-icon">
+        <img src="{{ url_for('static', filename='app_icon.png') }}" alt="Blood Sugar Tracker Icon">
+    </div>
+    <h1>Blood Sugar and Insulin Tracker</h1>
+    <h2>Settings</h2>
+    
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="flash-message">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="container">
+        <div class="toggle-container">
+            <label>Reminder</label>
+            <label class="toggle-switch">
+                <input type="checkbox" id="reminderToggle" {% if user.reminder_enabled %}checked{% endif %} onchange="toggleReminder()">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <button class="button" onclick="setReminder()">
+            <img src="{{ url_for('static', filename='reminder.png') }}" alt="Set Reminder">Set Reminder
+        </button>
+        <button class="button" onclick="exportData()">
+            <img src="{{ url_for('static', filename='export.png') }}" alt="Export Data">Export Data
+        </button>
+        <button class="button" onclick="pairDevice()">
+            <img src="{{ url_for('static', filename='pair.png') }}" alt="Pair Device">Pair Device
+        </button>
+        <button class="button" onclick="setLanguage()">
+            <img src="{{ url_for('static', filename='language.png') }}" alt="Set Language">Set Language
+        </button>
+        <button class="button delete" onclick="deleteAccount()">
+            <img src="{{ url_for('static', filename='delete.png') }}" alt="Delete Account">Delete Account & User Data
+        </button>
+    </div>
+
+    <!-- Footer Navigation Bar -->
+    <div class="footer-nav">
+        <a href="{{ url_for('home') }}" class="nav-button">
+            <img src="{{ url_for('static', filename='home.png') }}" alt="Home Icon">Home
+        </a>
+        <a href="{{ url_for('logs') }}" class="nav-button">
+            <img src="{{ url_for('static', filename='logs.png') }}" alt="Logs Icon">Logs
+        </a>
+        <a href="{{ url_for('profile') }}" class="nav-button">
+            <img src="{{ url_for('static', filename='user.png') }}" alt="User Icon">User
+        </a>
+        <a href="{{ url_for('settings') }}" class="nav-button active">
+            <img src="{{ url_for('static', filename='settings.png') }}" alt="Settings Icon">Settings
+        </a>
+    </div>
+
+    <script>
+        function toggleReminder() {
+            const toggle = document.getElementById('reminderToggle');
+            fetch('{{ url_for("settings") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'action=toggle_reminder'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    toggle.checked = data.reminder_enabled;
+                }
+            });
+        }
+
+        function setReminder() {
+            const time = prompt("Enter reminder time (HH:MM):");
+            if (time) {
+                fetch('{{ url_for("settings") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `action=set_reminder&reminder_time=${time}`
+                });
+            }
+        }
+
+        function exportData() {
+            window.location.href = '{{ url_for("export_data") }}';
+        }
+
+        function pairDevice() {
+            alert("Device pairing feature coming soon!");
+        }
+
+        function setLanguage() {
+            const languages = ['English', 'Spanish', 'French'];
+            const currentLang = '{{ user.language }}';
+            const newLang = prompt(`Current language: ${currentLang}\nAvailable languages: ${languages.join(', ')}\nEnter new language:`, currentLang);
+            if (newLang && languages.includes(newLang)) {
+                fetch('{{ url_for("settings") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `action=set_language&language=${newLang}`
+                });
+            }
+        }
+
+        function deleteAccount() {
+            if (confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+                fetch('{{ url_for("settings") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'action=delete_account'
+                });
+            }
+        }
+    </script>
+</body>
+</html> 

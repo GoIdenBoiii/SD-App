@@ -1,2 +1,1 @@
-# SD-App
-alan, Leo, Isai
+"# insulin-app" 
